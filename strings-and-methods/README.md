@@ -18,11 +18,12 @@ name = "Josh"
 | `.title()` | capitalizes the first letter of each word | `"josh kelly".title()` -> `"Josh Kelly"` |
 | `.capitalize()` | capitalizes only the first letter of the string | `"hello world".capitalize()` -> `"Hello world"` |
 | `.replace(old, new)` | replaces one substring with another | `"hi bob".replace("bob", "sam")` -> `"hi sam"` |
-| `.split()` | splits a string into a list, by spaces by default | `"a b c".split()` -> `["a", "b", "c"]` |
+| `.split()` | splits a string into a **list**, by spaces by default. **Returns a list of strings, not a single string.** | `"a b c".split()` -> `["a", "b", "c"]` |
 | `.join()` | joins a list into a string, using the string as the separator | `"-".join(["a", "b"])` -> `"a-b"` |
 | `.startswith()` | checks if a string starts with something | `"hello".startswith("he")` -> `True` |
 | `.endswith()` | checks if a string ends with something | `"hello".endswith("lo")` -> `True` |
 | `.find()` | returns the index of a substring, or -1 if not found | `"hello".find("l")` -> `2` |
+| `.index()` | returns the index of the first occurrence of a value, but **crashes with a ValueError if it's not found** (unlike `.find()`, which returns -1 instead). Works on lists too, not just strings, this is how you'd look up a value's position in a list, like matching a month name to its number. | `"hello".index("l")` -> `2`, or `["January", "February", "March"].index("March")` -> `2` |
 | `.count()` | counts how many times something appears | `"hello".count("l")` -> `2` |
 | `.isdigit()` | checks if a string is made up only of digits | `"123".isdigit()` -> `True` |
 | `.isalpha()` | checks if a string is made up only of letters | `"abc".isalpha()` -> `True` |
@@ -64,6 +65,8 @@ These aren't string-specific, but you'll use them constantly alongside strings.
 ## Common mistakes
 
 - Forgetting that `.strip()`, `.lower()`, etc. return a **new** string, they don't change the original unless you reassign it: `name = name.strip()`
-- Mixing up `.find()` (returns -1 if not found) with `in` (returns True/False)
+- Mixing up `.find()` (returns -1 if not found) with `.index()` (crashes with ValueError if not found) with `in` (returns True/False)
+- Forgetting that `.split()` gives you back a **list**, not a string, so you access pieces of it by position, like `parts[0]`, not by string methods directly
 - Trying to do `int("hello")`, this crashes because "hello" isn't a valid number
 - Off-by-one confusion with slicing, remember the end index is NOT included
+- Off-by-one confusion with `.index()` on a list, it counts from 0, so the 9th item in a list sits at index 8, not 9
