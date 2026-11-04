@@ -121,6 +121,74 @@ with open("students.csv", "a") as file:
 
 `fieldnames` tells it which column each dictionary key goes in.
 
+## Reading one CSV and writing a new one
+
+A common job: read a file, change each row, and save the result as a **new** file. Think of it as copying from an old notebook into a new one. Both notebooks need to be open on the desk at the same time.
+
+**Example:** `prices.csv` has prices without VAT. Make `prices_vat.csv` with a new column for the price including 23% VAT.
+
+`prices.csv` (input):
+```
+item,price
+Coffee,3.00
+Sandwich,6.50
+```
+
+`prices_vat.csv` (output, created by the program):
+```
+item,price,price_vat
+Coffee,3.00,3.69
+Sandwich,6.50,8.00
+```
+
+```python
+import csv
+
+with open("prices.csv") as infile:                               # 1. open the input to read
+    reader = csv.DictReader(infile)                              #    hands you one row at a time as a dictionary
+
+    with open("prices_vat.csv", "w", newline="") as outfile:     # 2. open the output to write (created blank)
+        writer = csv.DictWriter(outfile, fieldnames=["item", "price", "price_vat"])
+        writer.writeheader()                                     # 3. write the column titles ONCE
+
+        for row in reader:                                       # 4. one row at a time from the input
+            price = float(row["price"])                          #    change the data
+            price_vat = round(price * 1.23, 2)
+            writer.writerow({                                    #    write ONE row to the output
+                "item": row["item"],
+                "price": row["price"],
+                "price_vat": f"{price_vat:.2f}",
+            })
+```
+
+### The rule: set up once, repeat inside the loop
+
+| Before the loop (once) | Inside the loop (every row) |
+|---|---|
+| Open both files | Change the data |
+| Make the reader and the writer | Write one row with `writerow()` |
+| Write the header with `writeheader()` | |
+
+### Why the second `with` goes inside the first
+- Both files have to be **open during the loop**: you read from one and write to the other on every row
+- If the output `with` came **after** the input `with`, the input file would already be closed, and the reader would have nothing left to give
+- If the output were opened **inside the loop** with `"w"`, it would be wiped on every row, so only the last row would survive
+
+### Naming the files
+Give the two files **different names** (`infile` and `outfile`). If both were called `file`, the second would replace the first.
+
+### `writerow()` takes a dictionary
+- The **keys** must match the `fieldnames` exactly
+- The **values** are this row's data
+
+```python
+writer.writerow({"item": "Coffee", "price": "3.00", "price_vat": "3.69"})
+# writes the line: Coffee,3.00,3.69
+```
+
+### `newline=""`
+On Windows, the `csv` module adds a blank line between rows unless you open the output file with `newline=""`. It does no harm on other systems, so always include it when writing a CSV.
+
 ## Sorting what you read
 
 ```python
@@ -147,3 +215,6 @@ for student in sorted(students, key=lambda student: student["name"]):
 - Running the program from a different folder than the file. `open("names.txt")` looks in the folder the **terminal** is in, not the folder the `.py` file is in
 - Splitting a CSV by hand with `.split(",")` when values can contain commas. Use the `csv` library
 - Forgetting the header line is data too when reading a CSV by hand
+- Opening the output file **inside** the loop with `"w"`, so every row wipes the one before and only the last row is saved
+- Putting the output `with` **after** the input `with` instead of inside it, so the input is already closed when the loop runs
+- Calling `writeheader()` inside the loop, so the titles are written on every row
